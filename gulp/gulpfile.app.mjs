@@ -39,7 +39,8 @@ const WIN_PLATFORM = "win32";
 const LINUX_ARCH = "x64";
 const LINUX_PLATFORM = "linux";
 const MAC_ARCH = "x64";
-const MAC_PLATFORM = "mas";
+const MAC_ARCH_ARM64 = "arm64";
+const MAC_PLATFORM = "darwin";
 
 const APP_IMAGE_TOOL_URL = "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage";
 const APP_IMAGE_DIR = path.join(OUTPUT_DIR_APP, "sieve.AppDir");
@@ -47,6 +48,7 @@ const APP_IMAGE_DIR = path.join(OUTPUT_DIR_APP, "sieve.AppDir");
 const OUTPUT_DIR_APP_WIN32 = path.join(OUTPUT_DIR_APP, `sieve-${WIN_PLATFORM}-${WIN_ARCH}`);
 const OUTPUT_DIR_APP_LINUX = path.join(OUTPUT_DIR_APP, `sieve-${LINUX_PLATFORM}-${LINUX_ARCH}`);
 const OUTPUT_DIR_APP_MACOS = path.join(OUTPUT_DIR_APP, `sieve-${MAC_PLATFORM}-${MAC_ARCH}`);
+const OUTPUT_DIR_APP_MACOS_ARM64 = path.join(OUTPUT_DIR_APP, `sieve-${MAC_PLATFORM}-${MAC_ARCH_ARM64}`);
 
 const PERMISSIONS_EXECUTABLE = 0o100770;
 const PERMISSIONS_NORMAL = 0o100660;
@@ -353,6 +355,50 @@ async function packageAppImage() {
 }
 
 /**
+ * Packages the build directory and electron for macOS ARM64
+ */
+async function packageMacOSArm64() {
+
+  const options = {
+    dir: BUILD_DIR_APP,
+    arch: MAC_ARCH_ARM64,
+    platform: MAC_PLATFORM,
+    download: {
+      cacheRoot: CACHE_DIR_APP
+    },
+    out: OUTPUT_DIR_APP,
+    overwrite: true,
+    icon: path.join(common.BASE_DIR_COMMON, "icons/mac.icns"),
+    prune: true
+  };
+
+  await packager(options);
+}
+
+/**
+ * Zip the macOS ARM64 electron app.
+ * On macOS we have to use zip, because yazl errors out at symbolic links.
+ */
+async function zipMacOSArm64() {
+
+  const version = (await common.getPackageVersion()).join(".");
+
+  const source = path.resolve(OUTPUT_DIR_APP_MACOS_ARM64);
+  const destination = path.resolve(path.join(common.BASE_DIR_BUILD, `sieve-${version}-${MAC_PLATFORM}-${MAC_ARCH_ARM64}.zip`));
+
+  if (existsSync(destination)) {
+    logger.info(`Deleting ${path.basename(destination)}`);
+    await unlink(destination);
+  }
+
+  logger.info(`Compressing files ${source}/sieve.app`);
+  logger.info(`Creating ${path.basename(destination)}`);
+
+  process.chdir(`${source}/`);
+  await (promisify(exec)(`zip -qry "${destination}" "sieve.app" 2>&1`));
+}
+
+/**
  * Zip the macOS electron app.
  * On macOS we have to use zip, because yazl errors out at symbolic links.
  */
@@ -393,10 +439,12 @@ export default {
   packageWin32: packageWin32,
   packageLinux: packageLinux,
   packageMacOS: packageMacOS,
+  packageMacOSArm64: packageMacOSArm64,
 
   zipWin32: zipWin32,
   zipLinux: zipLinux,
   zipMacOS: zipMacOS,
+  zipMacOSArm64: zipMacOSArm64,
 
   appImageLinux: gulp.series(
     packageAppImageDir,
