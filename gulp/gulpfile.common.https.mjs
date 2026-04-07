@@ -67,7 +67,10 @@ async function fetch(url) {
     //
     // https://developer.github.com/v3/#user-agent-required
 
-    const options = {headers: { 'User-Agent': 'thsmi-sieve' }};
+    const headers = { 'User-Agent': 'thsmi-sieve' };
+    if (process.env.GITHUB_TOKEN)
+      headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+    const options = { headers };
     https.get(url, options, async function (response) {
 
       try {
@@ -119,7 +122,10 @@ async function download(url, destination) {
     //
     // https://developer.github.com/v3/#user-agent-required
 
-    const options = {headers: { 'User-Agent': 'thsmi-sieve' }};
+    const dlHeaders = { 'User-Agent': 'thsmi-sieve' };
+    if (process.env.GITHUB_TOKEN)
+      dlHeaders['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+    const options = { headers: dlHeaders };
 
     https.get(url, options, async function (response) {
 
