@@ -174,6 +174,9 @@ class SieveTextEditorUI extends SieveAbstractEditorUI {
       "Ctrl-F": () => {
         this.showFindToolbar();
       },
+      "Cmd-F": () => {
+        this.showFindToolbar();
+      },
       "F3": () => {
         const token = document.querySelector("#sieve-editor-txt-find").value;
         const isCaseSensitive = document.querySelector("#sieve-editor-casesensitive").checked;
@@ -260,7 +263,7 @@ class SieveTextEditorUI extends SieveAbstractEditorUI {
       if (e.target.closest && e.target.closest(".CodeMirror"))
         return;
 
-      if (e.ctrlKey && (e.key === "f" || e.key === "F")) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "f" || e.key === "F")) {
         e.preventDefault();
         this.showFindToolbar();
         return;
