@@ -41,8 +41,7 @@ const LINUX_PLATFORM = "linux";
 const MAC_ARCH = "x64";
 const MAC_PLATFORM = "mas";
 
-const APP_IMAGE_RELEASE_URL = "https://api.github.com/repos/AppImage/AppImageKit/releases";
-const APP_IMAGE_TOOL_NAME = "appimagetool-x86_64.AppImage";
+const APP_IMAGE_TOOL_URL = "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage";
 const APP_IMAGE_DIR = path.join(OUTPUT_DIR_APP, "sieve.AppDir");
 
 const OUTPUT_DIR_APP_WIN32 = path.join(OUTPUT_DIR_APP, `sieve-${WIN_PLATFORM}-${WIN_ARCH}`);
@@ -328,42 +327,10 @@ function packageAppImageFiles() {
  */
 async function packageAppImage() {
 
-  let releases = await https.fetch(APP_IMAGE_RELEASE_URL);
-
-  if (!releases)
-    throw new Error("Could not load app image tool releases.");
-
-  releases = releases
-    .filter((a) => { return (a.tag_name.toLowerCase() !== "continuous"); })
-    .filter((a) => { return (a.prerelease !== true); });
-
-  if (!releases)
-    throw new Error("Could not detect latest app image tool version.");
-
-  const latest = releases[0];
-
-  if (!latest)
-    throw new Error("Could not detect latest app image tool version.");
-
-  let url = null;
-  let tool = null;
-
-  for (const asset of latest.assets) {
-    if (asset.name.toLowerCase() !== APP_IMAGE_TOOL_NAME.toLowerCase())
-      continue;
-
-    url = asset.browser_download_url;
-    tool = path.resolve(path.join(
-      CACHE_DIR_APP, `appimagetool-v${latest.tag_name}.AppImage`));
-
-    break;
-  }
-
-  if (!url || !tool)
-    throw new Error("Could not download app image tool.");
+  const tool = path.resolve(path.join(CACHE_DIR_APP, "appimagetool-x86_64.AppImage"));
 
   if (!existsSync(tool))
-    await https.download(url, tool);
+    await https.download(APP_IMAGE_TOOL_URL, tool);
 
   const RWX_RWX_RX = 0o775;
   await chmod(tool, RWX_RWX_RX);
