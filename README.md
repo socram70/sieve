@@ -24,6 +24,8 @@ The text editor supports the following keyboard shortcuts:
 
 | Shortcut | Action |
 |---|---|
+| Ctrl+S / Cmd+S | Save the current script |
+| Ctrl+W / Cmd+W | Close the current script tab |
 | Ctrl+F / Cmd+F | Open search bar and focus search field |
 | F3 | Find next match |
 | Shift+F3 | Find previous match |
