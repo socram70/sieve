@@ -479,6 +479,16 @@ import { SieveI18n } from "./libs/managesieve.ui/utils/SieveI18n.mjs";
       await (new SieveTabUI()).open(account, name);
     },
 
+    "script-close": async function (msg) {
+
+      const name = msg.payload.data;
+      const account = msg.payload.account;
+
+      logger.logAction(`Close script tab ${name} for ${account}`);
+
+      await (new SieveTabUI()).close(account, name);
+    },
+
     "script-get": async function (msg) {
 
       const name = msg.payload.data;

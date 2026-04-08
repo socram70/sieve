@@ -93,17 +93,26 @@ class SieveEditorUI extends SieveEditorController {
         this.exportScript();
       });
 
+    const doSave = async () => {
+      document
+        .querySelector("#sieve-editor-saving").classList.remove("d-none");
+
+      await this.save();
+
+      document
+        .querySelector("#sieve-editor-saving").classList.add("d-none");
+    };
+
     document
       .querySelector("#sieve-editor-save")
-      .addEventListener("click", async () => {
-        document
-          .querySelector("#sieve-editor-saving").classList.remove("d-none");
+      .addEventListener("click", doSave);
 
-        await this.save();
-
-        document
-          .querySelector("#sieve-editor-saving").classList.add("d-none");
-      });
+    document.addEventListener("keydown", async (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) {
+        e.preventDefault();
+        await doSave();
+      }
+    });
 
     document
       .querySelector('.nav-item > a[href="#sieve-widget-editor"]')

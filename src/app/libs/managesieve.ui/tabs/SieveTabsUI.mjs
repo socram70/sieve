@@ -207,6 +207,17 @@ class SieveTabUI {
       .querySelector("#tabs-scroll-right")
       .addEventListener("click", () => { this.scrollRight(); });
 
+    document.addEventListener("keydown", async (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "w" || e.key === "W")) {
+        e.preventDefault();
+        const activeTabItem = document.querySelector("#tabs-items .nav-link.active")
+          ?.closest("[data-sieve-account]");
+        if (!activeTabItem)
+          return;
+        await this.close(activeTabItem.dataset.sieveAccount, activeTabItem.dataset.sieveName);
+      }
+    });
+
     document
       .querySelector("#tabs-content > #accounts")
       .src = "./libs/managesieve.ui/accounts.html";

@@ -80,6 +80,13 @@ async function main() {
   SieveIpcClient.setRequestHandler("editor", "editor-shown", () => { window.focus(); editor.focus(); });
   SieveIpcClient.setRequestHandler("editor", "editor-hasChanged", async () => { return await editor.hasChanged(); });
 
+  document.addEventListener("keydown", async (e) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === "w" || e.key === "W")) {
+      e.preventDefault();
+      await SieveIpcClient.sendMessage("core", "script-close", { "data": script, "account": account });
+    }
+  });
+
   // TODO Send a ready signal...
 }
 
